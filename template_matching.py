@@ -5,6 +5,7 @@ import cv2
 import matplotlib.pyplot as plt
 import sys, os
 import numpy as np
+argv = sys.argv
 
 # 入力画像、テンプレート画像を読み込む。
 image = cv2.imread('data/bug3.jpg')  # 入力画像
@@ -43,7 +44,7 @@ def template_match_mono(image, template, count):
     ret,image = cv2.threshold(image,50,255,cv2.THRESH_TOZERO_INV)
     ret,image = cv2.threshold(image, 10, 255, cv2.THRESH_BINARY)    
     image = cv2.dilate(image, kernel, iterations = 1)
-    
+    center = []
     image, contours, hierarchy = cv2.findContours(image, cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
     if len(contours) >= 1:
         for cont in contours:
@@ -53,14 +54,21 @@ def template_match_mono(image, template, count):
             if radius >= 30 and radius <= 120:
                 image = cv2.circle(copy,center,radius,(255,255,255),2)
                 print(int(x), int(y))
+                center.append((x, y))
             #image = cv2.drawContours(copy, cont, -1, (255,255,255), 3)
     cv2.imwrite('./data/result' + str(count) + '.jpg', image)
+    return center
 
 file_dir = './data/'
     
-    
+"""    
 for i, file in enumerate(os.listdir(file_dir)):
     print(file)
     img = cv2.imread(file_dir+file)  # 入力画像
-    template_match_mono(img, template, i)
-    
+    return template_match_mono(img, template, i)
+""" 
+
+if __name__ == '__main__':
+    if len(argv) == 2:
+        image = cv2.imread(argv[1])
+        return template_match_mono(image, template, 0)
