@@ -10,7 +10,6 @@ Created on Fri Nov  9 14:01:18 2018
 import numpy as np
 import sys
 from logging import getLogger, DEBUG, StreamHandler
-import matplotlib.pyplot as plt
 import cv2
 import os
 
@@ -61,17 +60,18 @@ def deep_learning_object_detection(image, prototxt, model, count):
 
 file_dir = 'data/human1/'
 save_dir = 'data/human_result/'
+prototxt="MobileNetSSD_deploy.prototxt.txt"
+model="MobileNetSSD_deploy.caffemodel"
 
+def main_process(file_path):
+    boxs = deep_learning_object_detection(file_path, prototxt, model, 0)
+    print(boxs)
+    return boxs
+    
 if __name__ == '__main__':
-    prototxt="MobileNetSSD_deploy.prototxt.txt"
-    model="MobileNetSSD_deploy.caffemodel"
-    if len(argv) != 2:
-        files = os.listdir(file_dir)
-        for i, file in enumerate(files):
-            print(file)
-            return deep_learning_object_detection(file_dir + file, prototxt, model, i)
-
+    if len(argv) == 2:
+        boxs = main_process(argv[1])
     else:
-        image = cv2.imread(argv[1])
+        print("usage:python3 ssd_detection file_name")
+
         
-        return deep_learning_object_detection(image, prototxt, model)
