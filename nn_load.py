@@ -68,45 +68,8 @@ def main():
     y_train = Y
     y_test = Y
     # 学習用データとテストデータに分割
-    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.33, random_state=111)
-
-    
-    # CNNを構築
-    model = Sequential()
-    model.add(Conv2D(32, (3, 3), padding='same', input_shape=X_train.shape[1:]))
-    model.add(Activation('relu'))
-    model.add(Conv2D(32, (3, 3)))
-    model.add(Activation('relu'))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.25)) # 過学習防止用：入力の25%を0にする（破棄）
-
-    model.add(Conv2D(64, (3, 3), padding='same'))
-    model.add(Activation('relu'))
-    model.add(Conv2D(64, (3, 3)))
-    model.add(Activation('relu'))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.25)) # 過学習防止用：入力の25%を0にする（破棄）
-
-    model.add(Flatten())
-    model.add(Dense(512))
-    model.add(Activation('relu'))
-    model.add(Dropout(0.5))          # 過学習防止用：入力の50%を0にする（破棄）
-    model.add(Dense(2))              # 出力は二次元（正解・不正解の2クラス）
-    model.add(Activation('softmax')) # 活性化関数（softmax）
-    # コンパイル（勾配法：SGD、損失関数：categorical_crossentropy、評価関数：accuracy）
-    model.compile(loss='categorical_crossentropy', optimizer='SGD', metrics=['accuracy'])
-
-    print("learning start:")
-    
-    # 構築したモデルで学習
-    history = model.fit(X_train, y_train, batch_size=5, epochs=200, validation_data = (X_test, y_test), verbose = 0)
-    
-    print("learning end:")
-    print("save model:")
-    
-    # save model
-    model.save('model_.h5')
-    
+    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.5, random_state=111)
+ 
     print("load model:")
     # load model
     model = load_model('model_.h5')
@@ -116,6 +79,7 @@ def main():
     score = model.evaluate(X_train, y_train, verbose=0)
     print('Test loss:', score[0])
     print('Test accuracy:', score[1])
+    print('what:', score)
 
 if __name__ == '__main__':
     main()
