@@ -10,7 +10,7 @@ template = cv2.imread('data/bug_template.jpg')  # テンプレート画像
  
 def red_filter(image):
     image = image.astype(np.float32)
-    image3 = image[:,:,2]
+    image3 = image[:,:,1]
     image3 /= 255
     return image3
     
@@ -20,7 +20,7 @@ def calcCircleLevel (contour, area):
     return circle_level
 
 def detect_coc(image, template):
-    image = cv2.resize(image, (int(image.shape[1]/2), int(image.shape[0]/2)))
+    #image = cv2.resize(image, (int(image.shape[1]/2), int(image.shape[0]/2)))
     centers = []
     copy = image.copy()    
     image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
@@ -41,10 +41,15 @@ def detect_coc(image, template):
             (x,y),radius = cv2.minEnclosingCircle(cont)
             center = (int(x),int(y))
             radius = int(radius)
-            if radius >= 20 and radius <= 70:
+            rect = cv2.minAreaRect(cont)
+            box = cv2.boxPoints(rect)
+            box = np.int0(box)
+            if radius >= 10 and radius <= 20 and cv2.contourArea(cont)/(3.14*radius**2) > 0.55:
+                image = cv2.drawContours(image,[box],0,(255,255,255),2)
+            
                 image = cv2.circle(image,center,radius,(255,255,255),2)
                 centers.append([int(x), int(y)])
-   
+    cv2.imwrite("1.jpg", image)
     return centers
     
 file_dir = './data/'
