@@ -44,12 +44,12 @@ def detect_coc(image, template):
             rect = cv2.minAreaRect(cont)
             box = cv2.boxPoints(rect)
             box = np.int0(box)
-            if radius >= 10 and radius <= 20 and cv2.contourArea(cont)/(3.14*radius**2) > 0.55:
+            if radius >= 13 and radius <= 20 and cv2.contourArea(cont)/(3.14*radius**2) > 0.55:
                 image = cv2.drawContours(image,[box],0,(255,255,255),2)
             
                 image = cv2.circle(image,center,radius,(255,255,255),2)
                 centers.append([int(x), int(y)])
-    cv2.imwrite("1.jpg", image)
+    cv2.imwrite(argv[2] + ".jpg", image)
     return centers
     
 file_dir = './data/'
@@ -59,7 +59,7 @@ def main_process(path):
     return detect_coc(image, template)
 
 if __name__ == '__main__':
-    if len(argv) != 2:
+    if len(argv) != 3:
         print("usage:python3 detect_coc.py file_name")
     else:
         print(main_process(argv[1]))  
