@@ -14,6 +14,10 @@ import cv2
 import os
 
 argv = sys.argv
+file_dir = 'data/human1/'
+save_dir = 'data/'
+prototxt="MobileNetSSD_deploy.prototxt.txt"
+model="MobileNetSSD_deploy.caffemodel"
 
 def deep_learning_object_detection(image, prototxt, model, count):
         logger = getLogger(__name__)
@@ -55,13 +59,7 @@ def deep_learning_object_detection(image, prototxt, model, count):
                     boxs.append(((startX, startY), (endX, endY)))
                     cv2.rectangle(image, (startX, startY), (endX, endY), COLORS[idx], 2)
                     y = startY - 15 if startY - 15 > 15 else startY + 15
-        cv2.imwrite(save_dir+str(i)+'.jpg', image)
         return boxs
-
-file_dir = 'data/human1/'
-save_dir = 'data/human_result/'
-prototxt="MobileNetSSD_deploy.prototxt.txt"
-model="MobileNetSSD_deploy.caffemodel"
 
 def main_process(file_path):
     boxs = deep_learning_object_detection(file_path, prototxt, model, 0)
