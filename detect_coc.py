@@ -15,14 +15,15 @@ def detect_coc(image):
     #image = cv2.resize(image, (int(image.shape[1]/2), int(image.shape[0]/2)))
     centers = []
     image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    lower = np.array([50, 200, 0])
-    upper = np.array([100, 255, 250])
+    lower = np.array([80, 140, 0])
+    upper = np.array([105, 255, 100])
     mask = cv2.inRange(image, lower, upper)
     image = cv2.bitwise_and(image, image, mask=mask)
-    print(image.shape)
     image = cv2.cvtColor(image, cv2.COLOR_HSV2BGR)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     ret,image = cv2.threshold(image,50,255,cv2.THRESH_TOZERO)
+    kernel = np.ones((3,3), np.float32)/ 9
+    image = cv2.dilate(image, kernel, iterations = 3)
     kernel_gauss = np.ones((3,3), np.float32)/9
     #image = cv2.filter2D(image, -1, kernel_gauss)
     #image = cv2.dilate(image, kernel_gauss, iterations = 3)
@@ -34,7 +35,7 @@ def detect_coc(image):
             (x,y),radius = cv2.minEnclosingCircle(cont)
             center = (int(x),int(y))
             radius = int(radius)
-            if radius > 20 and radius < 100:
+            if radius > 8 and radius < 20:
                 image = cv2.circle(image,center,radius,(255,255,255),2)
                 centers.append([int(x), int(y)])
                 print(radius)
