@@ -15,7 +15,21 @@ class Terminator(mk.Mumeikaneshige):
 
     rage_word = ['馬鹿', '無能', '死ね', '阿呆', 'ファック', 'マザーファッカー']
     is_rage = False
+
+    def get_rotate_angle(image, rocs, gakaku = 60):
+        roc = rocs[0]
+        center = int(image.shape[1]/2)
+        # 右を正とする
+        return (roc - center) / gakaku
+
+    def go_dest(dest):
+        
+        time.sleep(1)
     
+    def angle_to_speed(angle):
+        speed = angle
+        time.sleep(1)
+
     def rage(self, rotate_rate = 60):
         hit = False
         self.controllers['JTalk'].cmd_queue.put('yes.wav')
@@ -27,7 +41,9 @@ class Terminator(mk.Mumeikaneshige):
             time.sleep(1)
             self.controllers['Motor'].cmd_queue.put((0, 0))
             frame1, frame2 = self.senders['Webcamera'].msg_queue.get()
-            if human_detect(frame1) or human_detect(frame2):
+            roc1 = human_detect(frame1)
+            roc2 = human_detect(frame2)
+            if len(roc1) != 0 or len(roc2) = 0:
                 self.controllers['JTalk'].cmd_queue.put('yes.wav')
                 self.controllers['Arm'].msg_queue.put(50)
                 time.sleep(1)
