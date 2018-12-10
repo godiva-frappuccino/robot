@@ -21,31 +21,18 @@ size = (RESIZE, RESIZE)
 
 labels = []
 pos_images = []
-neg_images = []
-
-pos_path = './illust_data/pos/'
-neg_path = './illust_data/neg/'
 
 def load_image(file_path, class_num):
     image = cv2.imread(file_path)
     image= cv2.resize(image, size)
-    print(image.shape)
 
     image = np.reshape(image, -1, RESIZE*RESIZE*3)
-    if class_num == 1:
-        labels.append(1)
-        pos_images.append(image)
-    else:
-        labels.append(0)
-        neg_images.append(image)
-
-def suika():     
-    if len(argv) == 2:
-        file_name = argv[1]
-    else:
-        print("usage:python3 suika_svm.py file_name")
-        exit()
-    load_image(file_name, 1)
+    labels.append(1)
+    pos_images.append(image)
+    
+def suika(path):
+    print("load image...")
+    load_image(path, 1)
     
     test_pos = pos_images
     # make test_data array
@@ -59,11 +46,13 @@ def suika():
 
     for i in range(len(test_pos)):
         test_target.append(1)    
-
+        
+    print("load svm_model...")
     # load learned_model
-    filename = 'svm_suika_model.sav'
-    loaded_model = pickle.load(open(filename, 'rb'))
+    suika_model = 'svm_suika_model.sav'
+    loaded_model = pickle.load(open(suika_model, 'rb'))
 
+    print("judge if smashed...")
     # test model
     predicted = loaded_model.predict(test_data)
     if predicted[0] == 1:
@@ -72,7 +61,16 @@ def suika():
     else:
         print("failed...")
         return False
+
+def main_process(path):
+    print("judge if suika smashed!!")
+    return suika(path)
     
 if __name__ == '__main__':
-    is_destroyed = suika()
+    if len(argv) == 2:
+        file_name = argv[1]
+        main_process(file_name)
+    else:
+        print("usage:python3 suika_svm.py file_name")
+    
             
