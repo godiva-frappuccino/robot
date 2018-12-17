@@ -12,13 +12,12 @@ rage_word = ['馬鹿', 'マヌケ', 'アホ']
 stop_word = ['ごめん', 'すみません']
 apolo_word = ['ゆるして']
 words = ['', '', '', '', '']
-#laugh = "uhuhu.wav"
-laugh = "rage.wav"
+laugh = "uhuhu.wav"
 okotta = "rage.wav"
 mukka = "mukka.wav"
 atack = "atack.wav"
 hansei = "hansei.wav"
-apolo = "gomen.wav"
+gomen = "gomen.wav"
 
 class Terminator(mk.Mumeikaneshige):
     def __init__(self):
@@ -30,15 +29,12 @@ class Terminator(mk.Mumeikaneshige):
     def apologize(self):
       voice = self.senders['Julius'].msg_queue.get()
       if voice in stop_word:
-          print("I was apologized")
           self.say(gomen)
           return True
       elif voice in apolo_word:
-          print("not aologized")
           self.say(mukka)
           return False
       else:
-          print("not aologized")
           self.say(mukka)
           return False
 
