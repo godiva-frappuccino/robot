@@ -9,7 +9,7 @@ import time
 import mumeikaneshige as mk
 from detect_human import main_process as human_detect
 
-rage_word = ['馬鹿', 'マヌケ', '死ね', 'アホ', 'ファック', 'マザーファッカー']
+rage_word = ['馬鹿', 'マヌケ', 'アホ']
 class Terminator(mk.Mumeikaneshige):
     def __init__(self):
         super().__init__()
