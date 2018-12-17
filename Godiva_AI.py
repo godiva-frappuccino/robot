@@ -58,7 +58,7 @@ class Terminator(mk.Mumeikaneshige):
 
    
     def rotate_by_angle(speed=10000, angle):
-        t = angle / 30
+        t = angle/40*3 + 1/2
         self.controllers['Motor'].cmd_queue.put((speed, -speed))
         time.sleep(t)
         self.controllers['Motor'].cmd_queue.put((0, 0))
@@ -95,22 +95,22 @@ class Terminator(mk.Mumeikaneshige):
             self.rotate_nine(right = False)
             print("stop and find human")
             frame1, frame2 = self.senders['Webcamera'].msg_queue.get()
-            #roc1 = human_detect(frame1)
-            #roc2 = human_detect(frame2)
-            roc1 = [1, 2]
-            roc2 = [2, 3]
+            roc1 = human_detect(frame1)
+            roc2 = human_detect(frame2)
             
             # if found human
             if len(roc2) != 0:
                 print("I found human!")
+                x_center = (roc2[0][0] + roc2[0][2]) / 2
                 self.say(okotta)
-                self.rotate_by_angle(self.get_rotate_angle(frame2, roc2))
+                self.rotate_by_angle(self.get_rotate_angle(frame2, x_center))
                 find = True
                 break
             elif len(roc1) != 0:
                 print("I found human!!!")
+                x_center = (roc1[0][0] + roc1[0][2]) / 2
                 self.say(okotta)
-                self.rotate_by_angle(self.get_rotate_angle(frame1, roc1))
+                self.rotate_by_angle(self.get_rotate_angle(frame1, x_center))
                 find = True
                 break
             
