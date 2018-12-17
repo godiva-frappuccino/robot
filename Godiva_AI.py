@@ -7,11 +7,11 @@ import cv2
 import time
 import mumeikaneshige as mk
 from detect_human import main_process as human_detect
-from human import main as detect_h
 
 rage_word = ['馬鹿', 'マヌケ', 'アホ']
 stop_word = ['ごめん', 'すみません']
 apolo_word = ['ゆるして']
+words = ['', '', '', '', '']
 laugh = "uhuhu.wav"
 okotta = "rage.wav"
 mukka = "mukka.wav"
@@ -70,13 +70,13 @@ class Terminator(mk.Mumeikaneshige):
         self.controllers['Arm'].cmd_queue.put(60)
        
         
-    def rotate_nine(self, right = True):
-        speed =30000 if right else -30000
+    def rotate_six(self, right = True):
+        speed =20000 if right else -20000
         self.controllers['Motor'].cmd_queue.put((speed, -speed))
-        time.sleep(5)
+        time.sleep(2)
         self.controllers['Motor'].cmd_queue.put((speed, -speed))
           
-    def rage(self, rotate_rate = 90):
+    def rage(self, rotate_rate = 60):
         find = False
         
         # start rage_mode
@@ -86,30 +86,32 @@ class Terminator(mk.Mumeikaneshige):
         # search human to smash
         for i in range(int(360 / rotate_rate)):
             print("rotate to find human", i)
-            self.rotate_nine(right = True)
+            self.rotate_six(right = True)
             print("stop and find human")
             frame1, frame2 = self.senders['Webcamera'].msg_queue.get()
-            roc1 = detect_h(frame1)
-            roc2 = detect_h(frame2)
+            roc1 = human_detect(frame1)
+            roc2 = human_detect(frame2)
             # if apologized finish
             if self.apologize():
                 break
             
             # if found human
-            if roc2 != 0:
+            if len(roc2) != 0:
                 print("I found human!")
                 print("tuple", roc2)
+                x_center = (roc2[0][0][0] + roc2[0][1][0]) / 2
                 self.say(okotta)
                 print("adjust angle to smash")
-                self.rotate_by_angle(self.get_rotate_angle(frame2, roc2))
+                self.rotate_by_angle(self.get_rotate_angle(frame2, x_center))
                 find = True
                 break
-            elif roc1 != 0:
+            elif len(roc1) != 0:
                 print("I found human!!!")
                 print("tuple", roc1)
+                x_center = (roc1[0][0][0] + roc1[0][1][0]) / 2
                 self.say(okotta)
                 print("adjust angle to smash")
-                self.rotate_by_angle(self.get_rotate_angle(frame1, roc1))
+                self.rotate_by_angle(self.get_rotate_angle(frame1, x_center))
                 find = True
                 break
             
