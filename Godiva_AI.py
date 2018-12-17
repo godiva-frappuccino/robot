@@ -9,7 +9,8 @@ import mumeikaneshige as mk
 from detect_human import main_process as human_detect
 
 rage_word = ['馬鹿', 'マヌケ', 'アホ']
-stop_word = ['ごめんなさい', 'すみません']
+stop_word = ['ごめん', 'すみません']
+apolo_word = ['ゆるして']
 words = ['', '', '', '', '']
 laugh = "uhuhu.wav"
 okotta = "rage.wav"
@@ -30,7 +31,11 @@ class Terminator(mk.Mumeikaneshige):
       if voice in stop_word:
           self.say(gomen)
           return True
+      elif voice in apolo_word:
+          self.say(mukka)
+          return False
       else:
+          self.say(mukka)
           return False
 
     def get_rotate_angle(image, rocs, gakaku = 60):
@@ -75,10 +80,15 @@ class Terminator(mk.Mumeikaneshige):
           
     def rage(self, rotate_rate = 90):
         find = False
+        
+        # start rage_mode
         print("Rage Mode...")
         self.say(okotta)
         self.smash()
+        
+        # search human to smash
         for i in range(int(360 / rotate_rate)):
+            # if apologized finish
             if self.apologize():
                 break
             print("rotate to find human")
@@ -89,6 +99,8 @@ class Terminator(mk.Mumeikaneshige):
             #roc2 = human_detect(frame2)
             roc1 = [1, 2]
             roc2 = [2, 3]
+            
+            # if found human
             if len(roc2) != 0:
                 print("I found human!")
                 self.say(okotta)
@@ -96,21 +108,28 @@ class Terminator(mk.Mumeikaneshige):
                 find = True
                 break
             elif len(roc1) != 0:
-                print("I found human!")
+                print("I found human!!!")
                 self.say(okotta)
                 self.rotate_by_angle(self.get_rotate_angle(frame1, roc1))
                 find = True
                 break
+            
+            # if not found
             else:
                 print("I couldn't find human...")
                 self.say(mukka)
+        
+        # found! let's smash human!
         if find:
             self.say(mukka)
             if self.go_straight():
                 self.smash()
+                
+                # everything is over, apologize
                 time.sleep(2)
                 self.say(gomen)
-                
+        
+        # couldn't find, akirame...        
         else:
             self.say(mukka)
         print("Rage mode finished...")
