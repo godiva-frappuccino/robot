@@ -25,18 +25,18 @@ class Terminator(mk.Mumeikaneshige):
         time.sleep(t)    
         self.controllers['Motor'].cmd_queue.put((0, 0))
 
-    def go_straight(speed):
+    def go_straight(speed=30000):
         self.controllers['Motor'].cmd_queue.put((speed, speed))
 
     def go_fast(speed=30000, d):
-        t = d * 2
+        t = 5/3*d + 3/2
         self.controllers['Motor'].cmd_queue.put((speed, speed))
         time.sleep(t)    
         self.controllers['Motor'].cmd_queue.put((0, 0))
         
     
     def go_slow(speed=10000, d=2):
-        t = d / 2
+        t = 5*d + 1/2
         self.controllers['Motor'].cmd_queue.put((speed, speed))
         time.sleep(t)    
         self.controllers['Motor'].cmd_queue.put((0, 0))
@@ -51,11 +51,11 @@ class Terminator(mk.Mumeikaneshige):
         self.controllers['Motor'].cmd_queue.put((0, 0))
 
     def smash():
-        self.controllers['Arm'].cmd_queue.put(50)
+        self.controllers['Arm'].cmd_queue.put(60)
         time.sleep(1)
         self.controllers['Arm'].cmd_queue.put(-30)
         time.sleep(1)
-        self.controllers['Arm'].cmd_queue.put(50)
+        self.controllers['Arm'].cmd_queue.put(60)
        
         
     def rotate_nine(right = True):
@@ -65,27 +65,22 @@ class Terminator(mk.Mumeikaneshige):
         self.controllers['Moror'].cmd_queue.put((speed, -speed))
         
     def rage(self, rotate_rate = 90):
-        hit = False
+        find = False
         print("Rage Mode...")
-        self.controllers['JTalk'].cmd_queue.put('yes.wav')
+        self.controllers['JTalk'].cmd_queue.put('yes.wav') # rage
         self.smash()
         for i in range(int(360 / rotate_rate)):
+            print("rotate to find human")
             self.rotate_nine(right = False)
-            print("moter left")
-            self.controllers['Motor'].cmd_queue.put((5000, -5000))
-            time.sleep(3)
-            print("Motor stop")
-            self.controllers['Motor'].cmd_queue.put((0,0))
+            print("stop and find human")
             frame1, frame2 = self.senders['Webcamera'].msg_queue.get()
             #roc1 = human_detect(frame1)
             #roc2 = human_detect(frame2)
             roc1 = [1, 2]
             roc2 = [2, 3]
             if len(roc2) != 0:
-                print("Human detect")
-                # rotate
-                #rotate_by_angle(get_rotate_angle(frame2, roc2))
-                self.controllers['JTalk'].cmd_queue.put('yes.wav')
+                print("I found human!")
+                self.controllers['JTalk'].cmd_queue.put('yes.wav') # find
                 self.controllers['Motor'].cmd_queue.put((5000, -5000))
                 time.sleep(1)
                 self.controllers['Motor'].cmd_queue.put((0,0))
@@ -99,11 +94,11 @@ class Terminator(mk.Mumeikaneshige):
                 self.controllers['Arm'].cmd_queue.put(-30)
                 time.sleep(1)
                 self.controllers['Arm'].cmd_queue.put(50)
-                hit = True
+                find = True
                 break
             elif len(roc1) != 0:
-                print("Human detect")
-                self.controllers['Jtalk'].cmd_queue.puy('yes.wav')
+                print("I found human!")
+                self.controllers['Jtalk'].cmd_queue.put('yes.wav') # find
                 self.controllers['Motor'].cmd_queue.put((5000, -5000))
                 time.sleep(1)
                 self.controllers['Motor'].cmd_queue.put((0,0))
@@ -111,19 +106,16 @@ class Terminator(mk.Mumeikaneshige):
                 self.controllers['Arm'].msg_queue.put(50)
                 time.sleep(1)
                 self.controllers['Arm'].msg_queue.put(-30)
-                hit = True
+                find = True
                 break
             else:
-                self.controllers['JTalk'].cmd_queue.put('yes.wav')
-        if hit:
-            self.controllers['Motor'].cmd_queue.put((10000, 10000))
-            time.sleep(1)
-            self.controllers['Motor'].cmd_queue.put((0, 0))
-            self.controllers['Arm'].cmd_queue.put(50)
-            time.sleep(1)
-            self.controllers['Arm'].cmd_queue.put(-20)
+                print("I couldn't find human...")
+                self.controllers['JTalk'].cmd_queue.put('yes.wav') # gakkari
+        if find:
+            self.go_straight()
+            self.smash()
         else:
-            self.controllers['JTalk'].cmd_queue.put('yes.wav')
+            self.controllers['JTalk'].cmd_queue.put('yes.wav') # sikatanai
         print("Rage mode finished...")
             
     def run(self):        
