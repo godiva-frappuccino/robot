@@ -25,24 +25,11 @@ class Terminator(mk.Mumeikaneshige):
         time.sleep(t)    
         self.controllers['Motor'].cmd_queue.put((0, 0))
 
-    def go_straight(speed):
-        self.controllers['Motor'].cmd_queue.put((speed, speed))
-
-    def go_fast(speed=30000, d):
-        t = d * 2
-        self.controllers['Motor'].cmd_queue.put((speed, speed))
-        time.sleep(t)    
-        self.controllers['Motor'].cmd_queue.put((0, 0))
-        
-    
-    def go_slow(speed=10000, d=2):
+    def go_dist(speed=10000, d=2):
         t = d / 2
         self.controllers['Motor'].cmd_queue.put((speed, speed))
         time.sleep(t)    
         self.controllers['Motor'].cmd_queue.put((0, 0))
-
-    def set_stick_angle(angle = 60):
-        self.controllers['Motor'].cmd_queue.put(angle)
         
     def rotate_by_angle(angle):
         speed = angle
@@ -50,27 +37,17 @@ class Terminator(mk.Mumeikaneshige):
         time.sleep(1)
         self.controllers['Motor'].cmd_queue.put((0, 0))
 
-    def smash():
+    def rage(self, rotate_rate = 60):
+        hit = False
+        print("Rage Mode...")
+        self.controllers['JTalk'].cmd_queue.put('yes.wav')
         self.controllers['Arm'].cmd_queue.put(50)
         time.sleep(1)
         self.controllers['Arm'].cmd_queue.put(-30)
         time.sleep(1)
         self.controllers['Arm'].cmd_queue.put(50)
-       
-        
-    def rotate_nine(right = True):
-        speed =30000 if right else -30000
-        self.controllers['Moror'].cmd_queue.put((speed, -speed))
-        time.sleep(5)
-        self.controllers['Moror'].cmd_queue.put((speed, -speed))
-        
-    def rage(self, rotate_rate = 90):
-        hit = False
-        print("Rage Mode...")
-        self.controllers['JTalk'].cmd_queue.put('yes.wav')
-        self.smash()
         for i in range(int(360 / rotate_rate)):
-            self.rotate_nine(right = False)
+            #self.rotate_by_angle(rotat_rate)
             print("moter left")
             self.controllers['Motor'].cmd_queue.put((5000, -5000))
             time.sleep(3)
@@ -126,11 +103,11 @@ class Terminator(mk.Mumeikaneshige):
             self.controllers['JTalk'].cmd_queue.put('yes.wav')
         print("Rage mode finished...")
             
-    def run(self):        
-        while True:
-            voice = self.senders['Julius'].msg_queue.get()
-            if voice in rage_word:
-                self.rage()
+    def run(self):
+        self.controllers['Motor'].cmd_queue.put((10000, -10000))
+        time.sleep(2)
+        self.controllers['Motor'].cmd_queue.put((0,0))
+        #self.rage()
         
 def main():
     robot = Terminator()
