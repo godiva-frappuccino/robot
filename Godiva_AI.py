@@ -7,11 +7,11 @@ import cv2
 import time
 import mumeikaneshige as mk
 from detect_human import main_process as human_detect
+from human import main as detect_h
 
 rage_word = ['馬鹿', 'マヌケ', 'アホ']
 stop_word = ['ごめん', 'すみません']
 apolo_word = ['ゆるして']
-words = ['', '', '', '', '']
 laugh = "uhuhu.wav"
 okotta = "rage.wav"
 mukka = "mukka.wav"
@@ -89,29 +89,27 @@ class Terminator(mk.Mumeikaneshige):
             self.rotate_nine(right = True)
             print("stop and find human")
             frame1, frame2 = self.senders['Webcamera'].msg_queue.get()
-            roc1 = human_detect(frame1)
-            roc2 = human_detect(frame2)
+            roc1 = detect_h(frame1)
+            roc2 = detect_h(frame2)
             # if apologized finish
             if self.apologize():
                 break
             
             # if found human
-            if len(roc2) != 0:
+            if roc2 != 0:
                 print("I found human!")
                 print("tuple", roc2)
-                x_center = (roc2[0][0][0] + roc2[0][1][0]) / 2
                 self.say(okotta)
                 print("adjust angle to smash")
-                self.rotate_by_angle(self.get_rotate_angle(frame2, x_center))
+                self.rotate_by_angle(self.get_rotate_angle(frame2, roc2))
                 find = True
                 break
-            elif len(roc1) != 0:
+            elif roc1 != 0:
                 print("I found human!!!")
                 print("tuple", roc1)
-                x_center = (roc1[0][0][0] + roc1[0][1][0]) / 2
                 self.say(okotta)
                 print("adjust angle to smash")
-                self.rotate_by_angle(self.get_rotate_angle(frame1, x_center))
+                self.rotate_by_angle(self.get_rotate_angle(frame1, roc1))
                 find = True
                 break
             
