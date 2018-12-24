@@ -27,55 +27,66 @@ class Terminator(mk.Mumeikaneshige):
     def say(self, voice):
         self.controllers['JTalk'].cmd_queue.put(voice)
 
+    def set_go(speed_right, speed_left, acc):
+        self.controllers['Motor'].cmd_queue.put((speed_right, speed_left, acc))        
+
+    def set_arm(angle):
+        self.controllers['Arm'].cmd_queue.put(angle)
+        
+    def get_voice():
+        return self.senders['Julius'].msg_queue.get()
+
+    def get_sensor():
+        return self.senders['SRF02'].msg_queue.get()
+
+    def get_image():
+        return self.senders['Webcamera'].msg_queue.get()
+
     def apologize(self):
-      voice = self.senders['Julius'].msg_queue.get()
+      voice = self.get_voice()
       if voice in stop_word:
           self.say(gomen)
           return True
-      elif voice in apolo_word:
-          self.say(mukka)
-          return False
       else:
           self.say(mukka)
           return False
 
-    def get_rotate_angle(self, image, roc, gakaku = 60):
+    def get_angle(self, image, roc, gakaku = 60):
         center = int(image.shape[1]/2)
         # 右を正とする
         return (roc - center) / gakaku
 
     def go_straight(self):
         speed = 30000
-        self.controllers['Motor'].cmd_queue.put((speed, speed))
+        self.set_go(speed, speed, speed)
         while True:
-            dst_msg = self.senders['SRF02'].msg_queue.get()
+            dst_msg = self.get_sensor()
             print(dst_msg)
             if dst_msg[0] < 20 or dst_msg[1] < 20:
-                self.controllers['Motor'].cmd_queue.put((0, 0))
+                self.set_go(0, 0, 30000)
                 return True
-
    
     def rotate_by_angle(self, angle):
         speed = 10000
         t = angle/40*3 + 1/2
-        self.controllers['Motor'].cmd_queue.put((speed, -speed))
+        self.set_go(speed, -speed, speed)
         time.sleep(t)
-        self.controllers['Motor'].cmd_queue.put((0, 0))
-    
+        self.set_go(0, 0, speed)
+        
     def smash(self):
-        self.controllers['Arm'].cmd_queue.put(60)
+        self.set_arm(60)
         time.sleep(1)
         self.say(atack)
-        self.controllers['Arm'].cmd_queue.put(-30)
+        self.set_arm(-30)
         time.sleep(1)
-        self.controllers['Arm'].cmd_queue.put(60)
+        self.set_arm(60)
        
         
     def rotate_six(self, right = True):
         speed =20000 if right else -20000
-        self.controllers['Motor'].cmd_queue.put((speed, -speed, abs(speed)))
+        self.set_go(speed, -speed, abs(speed))
         time.sleep(2)
-        self.controllers['Motor'].cmd_queue.put((speed, -speed, abs(speed)))
+        self.set_go(speed, -speed, abs(speed))
           
     def rage(self, rotate_rate = 60):
         find = False
@@ -89,7 +100,7 @@ class Terminator(mk.Mumeikaneshige):
             print("rotate to find human", i)
             self.rotate_six(right = True)
             print("stop and find human")
-            frame1, frame2 = self.senders['Webcamera'].msg_queue.get()
+            frame1, frame2 = self.get_image()
             roc1 = h_detect(frame1)
             roc2 = h_detect(frame2)
             # if apologized finish
@@ -102,7 +113,7 @@ class Terminator(mk.Mumeikaneshige):
                 print("tuple", roc2)
                 self.say(okotta)
                 print("adjust angle to smash")
-                self.rotate_by_angle(self.get_rotate_angle(frame2, roc2))
+                self.rotate_by_angle(self.get_angle(frame2, roc2))
                 find = True
                 break
             elif roc1 != 0:
@@ -110,7 +121,7 @@ class Terminator(mk.Mumeikaneshige):
                 print("tuple", roc1)
                 self.say(okotta)
                 print("adjust angle to smash")
-                self.rotate_by_angle(self.get_rotate_angle(frame1, roc1))
+                self.rotate_by_angle(self.get_angle(frame1, roc1))
                 find = True
                 break
             
@@ -132,13 +143,13 @@ class Terminator(mk.Mumeikaneshige):
         
         # couldn't find, akirame...        
         else:
-            self.say(mukka)
+            self.say(hansei)
         print("Rage mode finished...")
             
     def run(self): 
         print("Godiva_AI start running!!!")
         while True:
-            voice = self.senders['Julius'].msg_queue.get()
+            voice = self.get_voice()
             if voice in rage_word:
                 self.rage()
             else:
