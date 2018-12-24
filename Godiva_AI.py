@@ -9,6 +9,7 @@ import random
 import mumeikaneshige as mk
 from detect_human import main_process as human_detect
 from human import main_process as h_detect
+import movidius
 
 rage_word = ['馬鹿', 'マヌケ', 'アホ']
 stop_word = ['ごめん', 'すみません']
@@ -33,6 +34,14 @@ mouii = "mouii.wav"
 class Terminator(mk.Mumeikaneshige):
     def __init__(self):
         super().__init__()
+        graph = '../movidius/graph'
+        categories = ('background','aeroplane', 'bicycle', 'bird', 'boat',
+                  'bottle', 'bus', 'car', 'cat', 'chair','cow',
+                  'diningtable', 'dog', 'horse','motorbike', 'person',
+                  'pottedplant', 'sheep','sofa', 'train', 'tvmonitor')
+    
+        self.detector = movidius.MobileSSD(graph, categories)
+
 
     def say(self, voice):
         self.controllers['JTalk'].cmd_queue.put(voice)
@@ -54,6 +63,7 @@ class Terminator(mk.Mumeikaneshige):
 
     def apologize(self):
       voice = self.get_voice()
+      print("Apologize word", voice)
       if voice in stop_word:
           self.say(gomen)
           return True
@@ -61,13 +71,13 @@ class Terminator(mk.Mumeikaneshige):
           self.say(naniyo)
           return False
       else:
-          self.say(mukka)
+          self.say(naniyo)
           return False
 
     def get_angle(self, image, roc, gakaku = 60):
-        center = int(image.shape[1]/2)
+        center = 150
         # 右を正とする
-        return (roc - center) / gakaku
+        return (roc - center) / gakaku * 640 / 300
 
     def go_straight(self):
         speed = 30000
@@ -81,7 +91,9 @@ class Terminator(mk.Mumeikaneshige):
    
     def rotate_by_angle(self, angle):
         speed = 10000
+        print("angle = ", angle)
         t = float(angle) / 15
+        print("rotate time = ", t)
         self.set_go(-speed, speed, speed)
         time.sleep(t)
         self.set_go(0, 0, speed)
@@ -90,6 +102,7 @@ class Terminator(mk.Mumeikaneshige):
         self.set_arm(60)
         time.sleep(1)
         self.say(atack)
+        time.sleep(0.5)
         self.set_arm(-30)
         time.sleep(1)
         self.set_arm(60)
@@ -99,23 +112,21 @@ class Terminator(mk.Mumeikaneshige):
         speed =20000 if right else -20000
         self.set_go(speed, -speed, abs(speed))
         time.sleep(2)
-        self.set_go(speed, -speed, abs(speed))
+        self.set_go(0, 0, abs(speed))
           
     def rage(self, rotate_rate = 60):
         find = False
         
         # start rage_mode
         print("Rage Mode...")
+        self.say(okotta)
         self.smash()
         
         # search human to smash
         for i in range(int(360 / rotate_rate)):
-            print("rotate to find human", i)
-            self.rotate_six(right = True)
-            print("stop and find human")
             frame1, frame2 = self.get_image()
-            roc1 = h_detect(frame1)
-            roc2 = h_detect(frame2)
+            roc1 = h_detect(frame1, self.detector)
+            roc2 = h_detect(frame2, self.detector)
             # if apologized finish
             if self.apologize():
                 break
@@ -123,7 +134,6 @@ class Terminator(mk.Mumeikaneshige):
             # if found human
             if roc2 != 0:
                 print("I found human!")
-                print("tuple", roc2)
                 self.say(okotta)
                 print("adjust angle to smash")
                 self.rotate_by_angle(self.get_angle(frame2, roc2))
@@ -131,7 +141,6 @@ class Terminator(mk.Mumeikaneshige):
                 break
             elif roc1 != 0:
                 print("I found human!!!")
-                print("tuple", roc1)
                 self.say(okotta)
                 print("adjust angle to smash")
                 self.rotate_by_angle(self.get_angle(frame1, roc1))
@@ -141,11 +150,21 @@ class Terminator(mk.Mumeikaneshige):
             # if not found
             else:
                 print("I couldn't find human...")
-                self.say(mouii)
-        
+                self.say(mukka)
+
+                if i == 5:
+                    pass
+                print("rotate to find human", i)
+                self.rotate_six(right = True)
+                print("stop and find human")
+                time.sleep(2)
+                self.say(mukka)
+           
         # found! let's smash human!
         print("let's smash human")
         if find:
+            if self.apologize():
+                pass
             if self.go_straight():
                 self.smash()
                 
@@ -154,7 +173,7 @@ class Terminator(mk.Mumeikaneshige):
                 self.say(gomen)
             find = False
         
-        # couldn't find, give up...        
+        # couldn't find, give up...
         else:
             self.say(hansei)
         print("Rage mode finished...")
@@ -165,9 +184,10 @@ class Terminator(mk.Mumeikaneshige):
             voice = self.get_voice()
             if voice in rage_word:
                 self.rage()
+                break
             else:
                 self.say(laugh_word[random.randint(0, 2)])
-                
+        print("Godiva AI normally finished...")
 def main():
     robot = Terminator()
     robot.start()
