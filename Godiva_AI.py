@@ -188,6 +188,7 @@ class Terminator(mk.Mumeikaneshige):
         print("Rage mode finished...")
             
     def run(self): 
+        self.say(start)
         print("Godiva_AI start running!!!")
         while True:
             voice = self.get_voice()
@@ -196,6 +197,7 @@ class Terminator(mk.Mumeikaneshige):
                 break
             else:
                 self.say(laugh_word[random.randint(0, 2)])
+        self.say(end)
         print("Godiva AI normally finished...")
         
 def main():
