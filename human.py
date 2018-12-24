@@ -8,7 +8,7 @@ sys.path.append('..')
 
 import movidius
 
-def main():
+def main_process():
     path_to_graph = '../movidius/graph'
     categories = ('background','aeroplane', 'bicycle', 'bird', 'boat',
                   'bottle', 'bus', 'car', 'cat', 'chair','cow',
@@ -23,14 +23,14 @@ def main():
         _, frame = cam.read()
         if frame is None:
             print('Failed to take a picture')
-            continue
+            pass
         frame = cv2.resize(frame, (300, 300))
         result = detector.detect(frame)
         
         for item in result:
             if item['category'] != 'person':
                 continue
-            x_center = (item['x1'] + item['x2'])/2
+            x_center = int((item['x1'] + item['x2'])/2)
             break
 
         cv2.waitKey(0)
@@ -42,4 +42,4 @@ def main():
         
 
 if __name__ == '__main__':
-    main()
+    main_process()
