@@ -68,8 +68,8 @@ class Terminator(mk.Mumeikaneshige):
    
     def rotate_by_angle(self, angle):
         speed = 10000
-        t = angle/40*3 + 1/2
-        self.set_go(speed, -speed, speed)
+        t = float(angle) / 15
+        self.set_go(-speed, speed, speed)
         time.sleep(t)
         self.set_go(0, 0, speed)
         
