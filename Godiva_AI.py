@@ -24,11 +24,16 @@ okotta = "rage.wav"
 mukka = "mukka.wav"
 atack = "atack.wav"
 naniyo = "naniyo.wav"
+kakugo = "kakugo.wav"
+aa = "find.wav"
 # apologize word
 hansei = "hansei.wav"
 gomen = "gomen.wav"
 # finish word
 mouii = "mouii.wav"
+# other word
+start = "start.wav"
+end = "end.wav"
 
 
 class Terminator(mk.Mumeikaneshige):
@@ -62,17 +67,19 @@ class Terminator(mk.Mumeikaneshige):
         return self.senders['Webcamera'].msg_queue.get()
 
     def apologize(self):
-      voice = self.get_voice()
-      print("Apologize word", voice)
-      if voice in stop_word:
-          self.say(gomen)
-          return True
-      elif voice in apolo_word:
-          self.say(naniyo)
-          return False
-      else:
-          self.say(naniyo)
-          return False
+        self.say(kakugo)
+        time.sleep(2)
+        voice = self.get_voice()
+        print("Apologize word", voice)
+        if voice in stop_word:
+            self.say(gomen)
+            return True
+        elif voice in apolo_word:
+            self.say(naniyo)
+            return False
+        else:
+            self.say(naniyo)
+            return False
 
     def get_angle(self, image, roc, gakaku = 60):
         center = 150
@@ -134,17 +141,19 @@ class Terminator(mk.Mumeikaneshige):
             # if found human
             if roc2 != 0:
                 print("I found human!")
-                self.say(okotta)
+                self.say(aa)
                 print("adjust angle to smash")
                 self.rotate_by_angle(self.get_angle(frame2, roc2))
                 find = True
+                time.sleep(1)
                 break
             elif roc1 != 0:
                 print("I found human!!!")
-                self.say(okotta)
+                self.say(aa)
                 print("adjust angle to smash")
                 self.rotate_by_angle(self.get_angle(frame1, roc1))
                 find = True
+                time.sleep(1)
                 break
             
             # if not found
@@ -158,7 +167,6 @@ class Terminator(mk.Mumeikaneshige):
                 self.rotate_six(right = True)
                 print("stop and find human")
                 time.sleep(2)
-                self.say(mukka)
            
         # found! let's smash human!
         print("let's smash human")
@@ -188,6 +196,7 @@ class Terminator(mk.Mumeikaneshige):
             else:
                 self.say(laugh_word[random.randint(0, 2)])
         print("Godiva AI normally finished...")
+        
 def main():
     robot = Terminator()
     robot.start()
