@@ -5,6 +5,7 @@ sys.path.append('../')
 import numpy as np
 import cv2
 import time
+import random
 import mumeikaneshige as mk
 from detect_human import main_process as human_detect
 from human import main_process as h_detect
@@ -12,13 +13,22 @@ from human import main_process as h_detect
 rage_word = ['馬鹿', 'マヌケ', 'アホ']
 stop_word = ['ごめん', 'すみません']
 apolo_word = ['ゆるして']
-words = ['', '', '', '', '']
+# laugh word
 laugh = "uhuhu.wav"
+hai = "hai.wav"
+yobu = "yobu.wav"
+laugh_word = [laugh, hai, yobu]
+# rage word
 okotta = "rage.wav"
 mukka = "mukka.wav"
 atack = "atack.wav"
+naniyo = "naniyo.wav"
+# apologize word
 hansei = "hansei.wav"
 gomen = "gomen.wav"
+# finish word
+mouii = "mouii.wav"
+
 
 class Terminator(mk.Mumeikaneshige):
     def __init__(self):
@@ -27,19 +37,19 @@ class Terminator(mk.Mumeikaneshige):
     def say(self, voice):
         self.controllers['JTalk'].cmd_queue.put(voice)
 
-    def set_go(speed_right, speed_left, acc):
+    def set_go(self, speed_right, speed_left, acc):
         self.controllers['Motor'].cmd_queue.put((speed_right, speed_left, acc))        
 
-    def set_arm(angle):
+    def set_arm(self, angle):
         self.controllers['Arm'].cmd_queue.put(angle)
         
-    def get_voice():
+    def get_voice(self):
         return self.senders['Julius'].msg_queue.get()
 
-    def get_sensor():
+    def get_sensor(self):
         return self.senders['SRF02'].msg_queue.get()
 
-    def get_image():
+    def get_image(self):
         return self.senders['Webcamera'].msg_queue.get()
 
     def apologize(self):
@@ -47,6 +57,9 @@ class Terminator(mk.Mumeikaneshige):
       if voice in stop_word:
           self.say(gomen)
           return True
+      elif voice in apolo_word:
+          self.say(naniyo)
+          return False
       else:
           self.say(mukka)
           return False
@@ -128,7 +141,7 @@ class Terminator(mk.Mumeikaneshige):
             # if not found
             else:
                 print("I couldn't find human...")
-                self.say(mukka)
+                self.say(mouii)
         
         # found! let's smash human!
         print("let's smash human")
@@ -141,7 +154,7 @@ class Terminator(mk.Mumeikaneshige):
                 self.say(gomen)
             find = False
         
-        # couldn't find, akirame...        
+        # couldn't find, give up...        
         else:
             self.say(hansei)
         print("Rage mode finished...")
@@ -153,7 +166,7 @@ class Terminator(mk.Mumeikaneshige):
             if voice in rage_word:
                 self.rage()
             else:
-                self.say(laugh)
+                self.say(laugh_word[random.randint(0, 2)])
                 
 def main():
     robot = Terminator()
