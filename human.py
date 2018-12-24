@@ -30,6 +30,8 @@ def main_process():
         for item in result:
             if item['category'] != 'person':
                 continue
+            print('human detext!')
+            print('x1 = ', item['x1'], 'x2 = ', item['x2'])
             x_center = int((item['x1'] + item['x2'])/2)
             break
 
