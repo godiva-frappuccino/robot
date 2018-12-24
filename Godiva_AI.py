@@ -94,8 +94,8 @@ class Terminator(mk.Mumeikaneshige):
             print(dst_msg)
             if dst_msg[0] < 20 or dst_msg[1] < 20:
                 self.set_go(0, 0, 30000)
-                return True
-   
+                break
+            
     def rotate_by_angle(self, angle):
         speed = 10000
         print("angle = ", angle)
@@ -150,6 +150,7 @@ class Terminator(mk.Mumeikaneshige):
             elif roc1 != 0:
                 print("I found human!!!")
                 self.say(aa)
+                time.sleep(1)
                 print("adjust angle to smash")
                 self.rotate_by_angle(self.get_angle(frame1, roc1))
                 find = True
@@ -173,12 +174,12 @@ class Terminator(mk.Mumeikaneshige):
         if find:
             if self.apologize():
                 pass
-            if self.go_straight():
-                self.smash()
+            self.go_straight()
+            self.smash()
                 
-                # everything is over, apologize
-                time.sleep(2)
-                self.say(gomen)
+            # everything is over, apologize
+            time.sleep(2)
+            self.say(gomen)
             find = False
         
         # couldn't find, give up...
